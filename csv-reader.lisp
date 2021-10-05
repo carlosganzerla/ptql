@@ -61,10 +61,10 @@
   (columns nil :read-only t)
   (rows nil :read-only t))
 
-(defun parse-table (path token &rest tokens &key (name path))
+(defun parse-table (path &key (tokens '(#\,)) (name path))
   (let* ((contents (read-file path))
          (cells (mapcar (lambda (r)
-                          (split-string r (cons token tokens)))
+                          (split-string r tokens))
                         contents))
          (columns (parse-columns (car cells)))
          (rows (parse-rows columns (cdr cells))))
@@ -84,7 +84,4 @@
   (let ((keys (mapcar (lambda (sym) (intern-keyword sym)) 
                       (mapcar #'symbol-name syms))))
     `(mapcar (lambda (row) (get-keys row ',keys))
-             (table-rows (symbol-value (intern-global ,table))))))
-
-
-(select (id name) "tabela")
+             (table-rows (symbol-value (intern-global ,(symbol-name table)))))))
