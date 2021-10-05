@@ -1,3 +1,5 @@
+(in-package #:ptql)
+
 (defun intern-keyword (name)
   (intern name "KEYWORD"))
 
