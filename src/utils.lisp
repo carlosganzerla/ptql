@@ -39,3 +39,14 @@
         (push val result)))))
 
 
+(defun deep-flat-filter (predicate lst)
+  (labels ((rec (acc lst)
+             (if lst
+                 (let ((conses (remove-if-not #'consp lst))
+                       (filtered (append acc (remove-if-not predicate lst))))
+                   (reduce (lambda (acc lst)
+                             (rec acc lst))
+                           conses
+                           :initial-value filtered ))
+                 acc)))
+    (rec nil lst)))
