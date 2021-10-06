@@ -5,7 +5,9 @@
   :author "Carlo Sganzerla"
   :license  "MIT"
   :version "0.0.1"
-  :pathname "src"
   :serial t
-  :components ((:file "package")
-               (:file "ptql")))
+  :components ((:file "src/package")
+               (:file "src/utils")
+               (:file "src/table")
+               (:file "src/parser")
+               (:file "src/ptql")))
