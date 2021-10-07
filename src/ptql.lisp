@@ -1,13 +1,10 @@
 (in-package #:ptql)
 
 (defmacro create-row-expr (row expr)
-  (let ((syms (get-symbols (cdr expr))))
-    (reduce (lambda (expr sym)
-              (subst `(getf ,row ,(intern-keyword (symbol-name sym))) 
-                     sym
-                     expr))
-            syms
-            :initial-value (cdr expr))))
+  `(reduce (lambda (expr sym)
+             (subst `(getf ,,row ,sym) (intern (symbol-name sym)) expr))
+           (remove-if-not #'symbolp ,row)
+           :initial-value ',expr))
 
 (defmacro select (syms &key from where)
   (let ((keys (mapcar (lambda (sym) (intern-keyword sym)) 
@@ -16,4 +13,4 @@
              (table-rows (symbol-value (intern-global ,(symbol-name from)))))))
 
 
-(create-row-expr *row* (or (+ a (eql a b)) (> 0 (- b a))))
+(create-row-expr *row* (or (+ a c) (> c (- b a))))
