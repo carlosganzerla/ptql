@@ -10,6 +10,13 @@
   `(let (,@(mapcar (lambda (s) `(,s (gensym))) syms))
      ,@body))
 
+(defmacro coerce-symbol (value)
+  (with-gensyms (fallback)
+    `(if (symbolp ,value)
+         (symbol-value ,value)
+         (let ((,fallback ,value))
+           ',fallback))))
+
 (defun make-adjustable-string (s)
   (make-array (length s)
               :fill-pointer (length s)
