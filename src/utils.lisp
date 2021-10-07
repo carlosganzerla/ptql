@@ -39,11 +39,11 @@
         (push val result)))))
 
 
-(defun deep-flat-filter (predicate lst)
+(defun get-symbols (lst)
   (labels ((rec (acc lst)
              (if lst
                  (let ((conses (remove-if-not #'consp lst))
-                       (filtered (append acc (remove-if-not predicate lst))))
+                       (filtered (union acc (remove-if-not #'symbolp lst))))
                    (reduce (lambda (acc lst)
                              (rec acc lst))
                            conses
