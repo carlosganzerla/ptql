@@ -1,5 +1,8 @@
 (in-package #:ptql)
 
+(defun intern-name (symb)
+  (intern (symbol-name symb)))
+
 (defun intern-keyword (name)
   (intern name "KEYWORD"))
 
