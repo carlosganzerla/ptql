@@ -47,16 +47,3 @@
       (when val
         (push key result)
         (push val result)))))
-
-
-(defun get-symbols (lst)
-  (labels ((rec (acc lst)
-             (if lst
-                 (let ((conses (remove-if-not #'consp lst))
-                       (filtered (union acc (remove-if-not #'symbolp lst))))
-                   (reduce (lambda (acc lst)
-                             (rec acc lst))
-                           conses
-                           :initial-value filtered ))
-                 acc)))
-    (rec nil lst)))

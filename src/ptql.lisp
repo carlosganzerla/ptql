@@ -17,12 +17,7 @@
              (,expr-symbol (getf ,row ,expr-symbol))
              (t ,expr)))))
 
-(defmacro where (rows expr)
-  `(remove-if-not (lambda (row)
-                    (eval (create-row-expr row ,expr)))
-                  ,rows))
-
-(defmacro select (syms &key from where)
+(defmacro select (syms &key from)
   (let ((keys (mapcar (lambda (sym) (intern-keyword sym))
                       (mapcar #'symbol-name syms))))
     `(mapcar (lambda (row) (get-keys row ',keys))
