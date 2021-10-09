@@ -1,5 +1,6 @@
 (in-package #:ptql)
 
+
 (defun intern-name (symb)
   (intern (symbol-name symb)))
 
@@ -17,13 +18,6 @@
 (defmacro with-gensyms (syms &body body)
   `(let (,@(mapcar (lambda (s) `(,s (gensym))) syms))
      ,@body))
-
-(defmacro coerce-symbol (value)
-  (with-gensyms (fallback)
-    `(if (symbolp ,value)
-         (symbol-value ,value)
-         (let ((,fallback ,value))
-           ',fallback))))
 
 (defun make-adjustable-string (s)
   (make-array (length s)
@@ -44,11 +38,3 @@
                 (setf current (make-adjustable-string "")))
               (vector-push-extend chr current))))))
 
-(defun get-keys (lst keys)
-  (let ((result nil))
-    (do* ((key (pop keys) (pop keys))
-          (val (getf lst key) (getf lst key)))
-      ((not key) (nreverse result))
-      (when val
-        (push key result)
-        (push val result)))))

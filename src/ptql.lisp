@@ -20,11 +20,6 @@
     `(mapcar (lambda (row) (get-keys row ',keys))
              (table-rows (symbol-value (intern-global ,(symbol-name from)))))))
 
-(defmacro where (rows expr)
-  `(remove-if-not (lambda (row)
-                    (create-row-expr row ,expr))
-                  ,rows))
-
 
 (defparameter *row* (list :a 1 :b 2 :c 3))
 (defparameter *rows* (make-list 5 :initial-element (list :a 1 :b 2 :c 3)))
@@ -33,5 +28,17 @@
 (create-row-expr nil (or (+ a c) (> c (- b a))))
 (create-row-expr nil x)
 (create-row-expr *row* a)
-(where *rows* (> a (+ c 1)))
-(remove-if-not (lambda (row) (create-row-expr row (> a (+ c 1)))) *rows*)
+(where *rows* nil)
+(let ((cols (list :a :b :c)) (row (list :a 1 :b 2 :c 3)))
+  (a-where cols row (+ a 1)))
+
+
+
+(defmacro query (from)
+  `(dolist (row ,(table-rows (intern-global from)))
+    (let (,@(mapcar (lambda (symb) 
+                      `(,(intern-name symb) (getf ,row ,symb)))
+                   (table-columns (intern-global from)) 
+                    )))))
+
+(query table)
