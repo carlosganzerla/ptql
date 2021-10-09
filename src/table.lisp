@@ -1,28 +1,14 @@
 (in-package #:ptql)
 
-(defmacro deftable (name table)
-  (with-gensyms (var)
-    `(let ((,var (intern-global ,name)))
-       (setf (symbol-value ,var) ,table)
-       ,var)))
+(defun intern-keyword (name-or-symb)
+  (intern (string-upcase name-or-symb) "KEYWORD"))
+
+(defun intern-global (name-or-symb)
+  (intern (concatenate 'string "*" (string-upcase name-or-symb) "*")))
 
 (defstruct table
   (columns nil :read-only t)
   (rows nil :read-only t))
 
-(defun get-select-keys (symbols)
-  (mapcar #'intern-keyword (mapcar #'symbol-name symbols)))
-
-(defun select-keys (lst keys)
-  (let ((result nil))
-    (do* ((key (pop keys) (pop keys))
-          (val (getf lst key) (getf lst key)))
-      ((not key) (nreverse result))
-      (when val
-        (push key result)
-        (push val result)))))
-
-
-(defun select-symbols (symbols rows)
-  (select-keys rows (get-select-keys symbols)))
-
+(defun find-table (name-or-symb)
+  (symbol-value (intern-global name-or-symb)))

@@ -9,8 +9,8 @@
 (defun parse-columns (columns)
   (mapcar (lambda (s)
             (if (string-equal "" s)
-                (intern-keyword (string (gensym)))
-                (intern-keyword (string-upcase s))))
+                (intern-keyword (gensym))
+                (intern-keyword s)))
           columns))
 
 (defun parse-row (columns row)
@@ -24,12 +24,12 @@
 (defun parse-rows (columns rows)
   (mapcar (lambda (row) (parse-row columns row)) rows))
 
-(defun parse-table (path &optional (name path) &key (tokens '(#\,)))
+(defun parse-table (path &optional (name path) &key (tokens (list #\,)))
   (let* ((contents (read-file path))
          (cells (mapcar (lambda (r)
                           (split-string r tokens))
                         contents))
          (columns (parse-columns (car cells)))
          (rows (parse-rows columns (cdr cells))))
-    (deftable (string-upcase name)
+    (defglobal name
               (make-table :columns columns :rows rows))))

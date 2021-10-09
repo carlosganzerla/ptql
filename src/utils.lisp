@@ -1,23 +1,14 @@
 (in-package #:ptql)
 
-
-(defun intern-name (symb)
-  (intern (symbol-name symb)))
-
-(defun intern-keyword (name)
-  (intern name "KEYWORD"))
-
-(defun intern-global (name)
-  (intern (concatenate 'string "*" name "*")))
-
-(defun get-value (x)
-  (if (symbolp x)
-      (symbol-value x)
-      x))
-
 (defmacro with-gensyms (syms &body body)
   `(let (,@(mapcar (lambda (s) `(,s (gensym))) syms))
      ,@body))
+
+(defmacro defglobal (name table)
+  (with-gensyms (var)
+    `(let ((,var ,name))
+       (setf (symbol-value ,var) ,table)
+       ,var)))
 
 (defun make-adjustable-string (s)
   (make-array (length s)
@@ -37,4 +28,13 @@
                 (push current splits)
                 (setf current (make-adjustable-string "")))
               (vector-push-extend chr current))))))
+
+(defun select-keys (prolst keys)
+  (let ((result nil))
+    (do* ((key (pop keys) (pop keys))
+          (val (getf prolst key) (getf prolst key)))
+      ((not key) (nreverse result))
+      (when val
+        (push key result)
+        (push val result)))))
 
