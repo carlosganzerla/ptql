@@ -9,6 +9,11 @@
 (defun intern-global (name)
   (intern (concatenate 'string "*" name "*")))
 
+(defun get-value (x)
+  (if (symbolp x)
+      (symbol-value x)
+      x))
+
 (defmacro with-gensyms (syms &body body)
   `(let (,@(mapcar (lambda (s) `(,s (gensym))) syms))
      ,@body))
