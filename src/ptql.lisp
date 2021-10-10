@@ -1,7 +1,8 @@
 (in-package #:ptql)
 
 (defun get-select-keys (symbols)
-  (mapcar #'intern-keyword (mapcar #'symbol-name symbols)))
+  (mapcar (lambda (s) (intern-symbol s t))
+          (mapcar #'symbol-name symbols)))
 
 (defun %select (rows symbols)
   (mapcar (lambda (row)
@@ -13,7 +14,7 @@
 
 (defmacro %row-scope (table row &body body)
   `(let (,@(mapcar (lambda (symb) 
-                     `(,(intern-name symb) (getf ,row ,symb)))
+                     `(,(intern-symbol symb) (getf ,row ,symb)))
                    (table-columns (find-table table))))
      ,@body))
 

@@ -1,7 +1,9 @@
 (in-package #:ptql)
 
-(defun intern-keyword (name-or-symb)
-  (intern (string-upcase name-or-symb) "KEYWORD"))
+(defun intern-symbol (name-or-symb &optional (keyword nil))
+  (if keyword
+   (intern (string-upcase name-or-symb) "KEYWORD")
+   (intern (string-upcase name-or-symb))))
 
 (defun intern-global (name-or-symb)
   (intern (concatenate 'string "*" (string-upcase name-or-symb) "*")))

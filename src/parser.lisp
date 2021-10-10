@@ -9,8 +9,8 @@
 (defun parse-columns (columns)
   (mapcar (lambda (s)
             (if (string-equal "" s)
-                (intern-keyword (gensym))
-                (intern-keyword s)))
+                (intern-symbol (gensym) t)
+                (intern-symbol s t)))
           columns))
 
 (defun parse-row (columns row)
