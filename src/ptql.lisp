@@ -22,5 +22,30 @@
   `(remove-if-not (lambda (row) (%row-scope ,table row ,expr))
                   (table-rows ,(find-table table))))
 
-(defmacro select (symbols &key from (where t))
-  `(%select (%where ,from ,where) ',symbols))
+(defun get-sort-fn (col)
+  (if (consp col)
+      (if (eql (cadr col) :desc)
+          (values 'string> (car col))
+          (values 'string< (car col)))
+      (values 'string< col)))
+
+(defmacro %order-by (cols rows)
+  (if cols
+   `(sort (copy-list ,rows)
+         (lambda (row1 row2)
+           (and ,@(mapcar (lambda (col)
+                            (multiple-value-bind (fn col-name) 
+                              (get-sort-fn col)
+                              `(,fn 
+                                 (getf row1 ,(intern-symbol col-name t))
+                                 (getf row2 ,(intern-symbol col-name t)))))
+                          cols))))
+   rows))
+
+(defmacro select (symbols &key from (where t) order-by)
+  `(%select (%order-by (%where ,from ,where) ,order-by) ',symbols))
+
+(defun test (asc) nil)
+(print-rows (%order-by (age name) (table-rows *table*)))
+(%order-by nil (table-rows *table*))
+(split-string)

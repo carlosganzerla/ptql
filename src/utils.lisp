@@ -38,3 +38,38 @@
         (push key result)
         (push val result)))))
 
+(defun unfold (lst)
+  (reduce (lambda (acc e)
+            (if (consp e)
+                (append acc (apply #'list (unfold e)))
+                (append acc (list e))))
+          lst
+          :initial-value nil))
+
+(defun group-list (sorted-list)
+  (labels ((rec (head acc lst)
+             (if lst
+                 (if (or (not head)
+                         (equal (car head) (car lst)))
+                     (rec (cons (car lst) head)
+                          acc
+                          (cdr lst))
+                     (rec (list (car lst))
+                          (cons (nreverse head) acc)
+                          (cdr lst)))
+                 (nreverse (cons (nreverse head) acc)))))
+    (rec nil nil sorted-list)))
+
+(defun recursive-sort (lst predicate &rest predicates)
+  (labels ((rec (groups predicates)
+             (if (not predicates)
+                 groups
+                 (mapcar (lambda (group)
+                           (rec (group-list (sort group (car predicates)))
+                                (cdr predicates)))
+                         groups))))
+    (rec (group-list (sort lst predicate)) predicates)))
+
+(recursive-sort '((1 2)  (1 2) (1 3) (2 2) (2 1) (2 0) (1 4) (1 2) (3 3) (3 1))
+                (lambda (x1 x2) (> (car x1) (car x2)))
+                (lambda (x1 x2) (< (cadr x1) (cadr x2))))
