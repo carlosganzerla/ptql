@@ -31,21 +31,21 @@
 
 (defmacro %order-by (cols rows)
   (if cols
-   `(sort (copy-list ,rows)
-         (lambda (row1 row2)
-           (and ,@(mapcar (lambda (col)
-                            (multiple-value-bind (fn col-name) 
-                              (get-sort-fn col)
-                              `(,fn 
-                                 (getf row1 ,(intern-symbol col-name t))
-                                 (getf row2 ,(intern-symbol col-name t)))))
-                          cols))))
-   rows))
+      `(multi-sort 
+         (copy-list ,rows)
+         ,@(mapcar (lambda (col)
+                     (multiple-value-bind (fn col-name) (get-sort-fn col)
+                       `(lambda (row1 row2) 
+                          (,fn 
+                            (getf row1 ,(intern-symbol col-name t))
+                            (getf row2 ,(intern-symbol col-name t))))))
+                   cols))
+      rows))
 
 (defmacro select (symbols &key from (where t) order-by)
-  `(%select (%order-by (%where ,from ,where) ,order-by) ',symbols))
+  `(%select (%order-by ,order-by (%where ,from ,where)) ',symbols))
 
-(defun test (asc) nil)
-(print-rows (%order-by (age name) (table-rows *table*)))
+;; (defun test (asc) nil)
+(print-rows (%order-by (age (name :desc)) (table-rows *table*)))
 (%order-by nil (table-rows *table*))
-(split-string)
+;; (split-string)
