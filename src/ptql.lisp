@@ -44,8 +44,3 @@
 
 (defmacro select (symbols &key from (where t) order-by)
   `(%select (%order-by ,order-by (%where ,from ,where)) ',symbols))
-
-;; (defun test (asc) nil)
-(print-rows (%order-by (age (name :desc)) (table-rows *table*)))
-(%order-by nil (table-rows *table*))
-;; (split-string)
