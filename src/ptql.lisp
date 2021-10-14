@@ -9,8 +9,8 @@
             (select-keys row (get-select-keys symbols)))
           rows))
 
-(defmacro import-table (filename symb)
-  `(parse-table ,filename ',(intern-global symb)))
+(defun import-table (filename symb)
+  (parse-table filename (intern-global symb)))
 
 (defmacro %row-scope (table row &body body)
   `(let (,@(mapcar (lambda (symb) 

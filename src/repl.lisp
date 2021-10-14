@@ -13,10 +13,20 @@
 (defun is-car (item lst) 
   (and (consp lst) (eql (car lst) item)))
 
+(defun print-line (msg &rest args)
+  (format *query-io* (concatenate 'string "~&" msg "~%") args))
+
+(defun read-command ()
+  (read-from-string (concatenate 'string "(" (read-line *query-io*) ")")))
+
 (defun repl ()
-  (format t "Welcome to PTQL, enter your commands or q to quit!~%")
-  (do ((expr (read) (read))) 
-      ((eql expr 'q) (format t "Goodbye!"))
-      (cond ((is-car expr 'import-table) (eval expr))
-            ((is-car expr 'select) (print-rows (eval expr)))
-            (t (format t "Unknonw expression: ~A~%" expr)))))
+  (print-line "Welcome to PTQL, enter your commands or q to quit!")
+  (do ((expr (read-command) (read-command)))
+      ((equal (car expr) 'q) (print-line "Goodbye"))
+      (cond ((is-car 'import-table expr) 
+             (print-line "Table ~A imported successfully" 
+                         (apply #'import-table (cdr (print expr)))))
+            ((is-car 'select expr) 
+             (print-rows (eval expr)))
+            (t (print-line "Unknown expression: ~A" expr)))))
+
