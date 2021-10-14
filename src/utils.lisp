@@ -70,3 +70,17 @@
                          groups))))
     (unfoldn (rec (group-list lst predicate) predicates)
              (1+ (length predicates)))))
+
+
+(defun extract-set (tree predicate &key (key #'identity) (test #'eql))
+  (let ((adjoin-fn (lambda (lst e)
+                     (adjoin e lst :key key :test test))))
+    (reduce (lambda (acc e)
+              (if (consp e)
+                  (reduce adjoin-fn 
+                          (extract-set e predicate :key key :test test)
+                          :initial-value acc)
+                  (or (and (funcall predicate e) (funcall adjoin-fn acc e))
+                      acc)))
+            tree
+            :initial-value nil)))
