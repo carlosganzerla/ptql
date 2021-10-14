@@ -24,5 +24,8 @@
       (case (car expr) 
         (import-table (print-line "Table ~A imported successfully" 
                                   (apply #'import-table (cdr expr))))
-        (select (print-rows (eval expr)))
+        (select 
+          (declaim (sb-ext:muffle-conditions style-warning))
+          (print-rows (eval expr)))
+          (declaim (sb-ext:unmuffle-conditions style-warning))
         (t (print-line "Unknown expression: ~A" expr)))))

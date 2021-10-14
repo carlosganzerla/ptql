@@ -13,10 +13,12 @@
   (parse-table filename (intern-global symb)))
 
 (defmacro %row-scope (table row &body body)
-  (let ((columns (mapcar #'intern-symbol (table-columns (find-table table)))))
+  (let* ((columns (table-columns (find-table table)))
+         (column-symbols (mapcar #'intern-symbol columns)))
     `(let (,@(mapcar (lambda (symb) 
-                       `(,(intern-symbol symb) (getf ,row ,symb)))
-                     (extract-set body (lambda (c) (member c columns)))))
+                       `(,symb (getf ,row ,(intern-symbol symb t))))
+                     (extract-set body 
+                                  (lambda (c) (member c column-symbols)))))
        ,@body)))
 
 (defmacro %where (table expr)
@@ -45,7 +47,3 @@
 
 (defmacro select (symbols &key from (where t) order-by)
   `(%select (%order-by ,order-by (%where ,from ,where)) ',symbols))
-
-(%where table (id (name (age age age age) nay opyta cu) > > 3))
-(%where table ())
-(%where table (> age 2))
