@@ -24,7 +24,7 @@
 (defun parse-rows (columns rows)
   (mapcar (lambda (row) (parse-row columns row)) rows))
 
-(defun parse-table (path &optional (name path) &key (tokens (list #\,)))
+(defun parse-table (path name &key (tokens (list #\,)))
   (let* ((contents (read-file path))
          (cells (mapcar (lambda (r)
                           (split-string r tokens))

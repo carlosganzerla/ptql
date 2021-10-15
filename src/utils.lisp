@@ -84,3 +84,9 @@
                       acc)))
             tree
             :initial-value nil)))
+
+(defmacro without-style-warnings (&body body)
+  `(unwind-protect
+     (progn (declaim (sb-ext:muffle-conditions style-warning)) 
+            ,@body)
+     (declaim (sb-ext:unmuffle-conditions style-warning))))
