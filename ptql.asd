@@ -10,5 +10,5 @@
                (:file "src/utils")
                (:file "src/table")
                (:file "src/parser")
-               (:file "src/repl")
-               (:file "src/ptql")))
+               (:file "src/ptql")
+               (:file "src/repl")))

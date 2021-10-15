@@ -40,6 +40,7 @@
 
 
 (defun repl ()
+  (in-package #:ptql)
   (print-line "Welcome to PTQL, enter your commands or q to quit!")
   (do ((command (read-command) (read-command)))
       ((eql (car command) 'q) (print-line "Goodbye"))

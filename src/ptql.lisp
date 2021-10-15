@@ -45,5 +45,5 @@
 (defmacro select (symbols &key from (where t) order-by)
   `(%select (%order-by ,order-by (%where ,from ,where)) 
             (if (eql ',symbols '*)
-                 (table-columns ,from)
+                 (table-columns (find-table ',from))
                  ',symbols)))
