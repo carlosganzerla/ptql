@@ -9,9 +9,6 @@
             (select-keys row (get-select-keys symbols)))
           rows))
 
-(defun import-table (filename symb)
-  (parse-table filename (intern-global symb)))
-
 (defmacro %row-scope (table row &body body)
   (let* ((columns (table-columns (find-table table)))
          (column-symbols (mapcar #'intern-symbol columns)))
@@ -46,4 +43,7 @@
       rows))
 
 (defmacro select (symbols &key from (where t) order-by)
-  `(%select (%order-by ,order-by (%where ,from ,where)) ',symbols))
+  `(%select (%order-by ,order-by (%where ,from ,where)) 
+            (if (eql ',symbols '*)
+                 (table-columns ,from)
+                 ',symbols)))

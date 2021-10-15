@@ -31,5 +31,5 @@
                         contents))
          (columns (parse-columns (car cells)))
          (rows (parse-rows columns (cdr cells))))
-    (defglobal name
-              (make-table :columns columns :rows rows))))
+    (defglobal (intern-global name)
+               (make-table :columns columns :rows rows))))

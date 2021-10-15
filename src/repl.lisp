@@ -16,8 +16,8 @@
 
 (defun help-error-message ()
   (print-line "Commands must be on the following form:")
-  (print-line "import-table #p\"<csv-path>\" <table-name>")
-  (print-line "select ([column]*) :from <table-name>")
+  (print-line "parse-table #p\"<csv-path>\" <table-name>")
+  (print-line "select ([column]* | *) :from <table-name>")
   (print-line "[:where <condition>] [:order-by ([column | (column :desc)]*)]"))
 
 (defun read-command ()
@@ -30,17 +30,17 @@
 
 (defun interpret-command (command)
   (handler-case
-    (case (car command) 
-      (help (help-error-message))
-      (import-table (print-line "Table ~A imported successfully" 
-                                (apply #'import-table (cdr command))))
-      (select (without-style-warnings (print-rows (eval command))))
-      (t (print-line "Unknown command ~A" command)))
-    (condition (c) (print-line "~A" c))))
+   (case (car command) 
+    (help (help-error-message))
+    (parse-table (print-line "Table ~A imported successfully" 
+                              (apply #'parse-table (cdr command))))
+    (select (without-style-warnings (print-rows (eval command))))
+    (t (print-line "Unknown command ~A" command)))
+   (condition (c) (print-line "~A" c))))
 
 
 (defun repl ()
   (print-line "Welcome to PTQL, enter your commands or q to quit!")
   (do ((command (read-command) (read-command)))
       ((eql (car command) 'q) (print-line "Goodbye"))
-      (interpret-command command)))
+      (when command (interpret-command command))))
