@@ -2,7 +2,7 @@
 
 (asdf:defsystem #:ptql
   :description "Plain Text Query language"
-  :author "Carlo Sganzerla"
+  :author "Carlo Sganzerla <mapard.carlo@gmail.com>"
   :license  "MIT"
   :version "0.0.1"
   :serial t
