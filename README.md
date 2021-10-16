@@ -15,7 +15,7 @@ sudo pacman -Sy sbcl
 
 Also, you must install ASDF. I recommend installing quicklisp, which already
 installs ASDF. Their site contains precise
-[instructions](https://www.quicklisp.org/beta/)
+[instructions](https://www.quicklisp.org/beta/).
 
 Clone the repo, then run Make on the repo main folder:
 
@@ -60,21 +60,21 @@ select (id field) :from table :where (> (length field) 5) :order-by (extra)
 ```
 
 You can use any valid Lisp expression on the `where` clause. On the `order-by`,
-create a list with the symbol names. You may order by descendings well:
+use a list with the column names. You may order by descendings well:
 
 ```lisp
-select (field) :from table :order-by ((extra :desc))
+select (field) :from table :order-by (name (extra :desc))
 ```
 
-Column names may also have white_space. If it is so, refer to them enclosing
+Column names may also have white space. If it is so, refer to them by enclosing
 the name with `|`:
 
 ```lisp
-select (|person name|) :from table :where (= 90 |person weight|)
+select (|person name|) :from some-other-table :where (= 90 |person weight|)
 ```
 
 ## Other commands
 
 There are no other commands (yet). Enter `help` to get a tip of the syntax.
 I'll be adding new stuff from time to time, although the current focus is to
-make the basic querying functionality as robust as possible
+make the basic querying functionality as robust as possible.
