@@ -1,5 +1,19 @@
 (in-package #:ptql)
 
+(defun curry (fn &rest args)
+  (lambda (&rest args2)
+      (apply fn (append args args2))))
+
+(defun rcurry (fn &rest args)
+  (lambda (&rest args2)
+      (apply fn (append args2 args)))) 
+
+(defun atom-test (fn)
+  (lambda (arg1 arg2)
+    (if (and (atom arg1) (atom arg2))
+        (funcall fn arg1 arg2)
+        (eql arg1 arg2))))
+
 (defun select-keys (prolst keys)
   (let ((result nil))
     (do* ((key (pop keys) (pop keys))
