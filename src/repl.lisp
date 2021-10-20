@@ -1,5 +1,11 @@
 (in-package #:ptql)
 
+(defmacro without-style-warnings (&body body)
+  `(unwind-protect
+     (progn (declaim (sb-ext:muffle-conditions style-warning)) 
+            ,@body)
+     (declaim (sb-ext:unmuffle-conditions style-warning))))
+
 (defun print-row (row)
   (format t "~{~10a~}~%" row))
 
@@ -40,7 +46,6 @@
 
 
 (defun repl ()
-  (in-package #:ptql)
   (print-line "Welcome to PTQL, enter your commands or q to quit!")
   (do ((command (read-command) (read-command)))
       ((eql (car command) 'q) (print-line "Goodbye"))

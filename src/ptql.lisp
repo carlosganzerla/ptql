@@ -29,7 +29,7 @@
           (values 'string< (car col)))
       (values 'string< col)))
 
-(defmacro %order-by (cols rows)
+(defmacro %order-by (cols table)
   (if cols
       `(multi-sort 
          (copy-list ,rows)
