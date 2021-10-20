@@ -44,6 +44,22 @@
 
 (defmacro select (symbols &key from (where t) order-by)
   `(%select (%order-by ,order-by (%where ,from ,where)) 
-            (if (eql ',symbols '*)
-                 (table-columns (find-table ',from))
-                 ',symbols)))
+            ))
+
+;;; NEW
+
+(defvar *database* (make-hash-table))
+
+(defun find-table (table)
+  (or (gethash table *database*)
+      (error (format nil "Table ~A does not exist" table))))
+
+(defun import-table (path table)
+  (multiple-value-bind (rows columns) (parse-table path)
+    (setf (gethash table *database*) 
+          (make-instance 'table :columns columns :rows rows))))
+
+(defun get-select-keys (symbols table)
+  (if (string= symbols '*)
+      (columns table)
+      (and (consp symbols) (mapcar #'to-keyword symbols))))

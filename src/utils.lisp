@@ -14,15 +14,6 @@
         (funcall fn arg1 arg2)
         (eql arg1 arg2))))
 
-(defun select-keys (prolst keys)
-  (let ((result nil))
-    (do* ((key (pop keys) (pop keys))
-          (val (getf prolst key) (getf prolst key)))
-      ((not key) (nreverse result))
-      (when val
-        (push key result)
-        (push val result)))))
-
 
 (defun unfoldn (lst n)
   (reduce (lambda (acc e)
