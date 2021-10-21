@@ -15,10 +15,7 @@
          (len 0 (+ len 1)))
         ((eql line :eof)
          (subst nil "" (mapcar #'split-string (nreverse lines))
-                :test (atom-test #'string=))))))
-
-(defun to-keyword (name-or-symbol)
-  (intern (string-upcase name-or-symbol) :keyword))
+                :test (test-safe #'string= #'stringp))))))
 
 (defun %parse-columns (columns)
   (mapcar (lambda (col)

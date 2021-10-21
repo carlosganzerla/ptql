@@ -47,7 +47,6 @@
             ))
 
 ;;; NEW
-
 (defvar *database* (make-hash-table))
 
 (defun find-table (table)
@@ -59,7 +58,34 @@
     (setf (gethash table *database*) 
           (make-instance 'table :columns columns :rows rows))))
 
-(defun get-select-keys (symbols table)
-  (if (string= symbols '*)
-      (columns table)
-      (and (consp symbols) (mapcar #'to-keyword symbols))))
+
+(defmacro %where (expr columns)
+  (where ,table (lambda (row)
+                 ,(reduce (lambda (expr col)  
+                            (subst `(getf row ,col) col expr 
+                                   :test (test-safe #'string= #'symbolp)))
+                          columns
+                          :initial-value expr))))
+
+(%where (and (> x 3) (= y 4)) (:x :y))
+
+(defmacro %select (symbols table)
+  (with-gensyms (result)
+    (let ((,result ,table))
+      (select ,result 
+              (etypecase ',symbols
+                (symbol (if (string= ',symbols '*) 
+                            (columns ,result)
+                            (error "SYMBOLS must be * or a symbol list")))
+                (list (mapcar (rcurry #'intern-upcase :keyword) 
+                              ,symbols)))))))
+
+(defun select-command (symbols &key from where)
+  (let ((table (find-table from)))
+    (%select symbols (%where where (columns table)))))
+
+; (defmacro select-command (symbols &key from (where t))
+;   ((select (where ,from (%where ,where (columns ,(find-table from)))) 
+;            (select-columns ',symbols ,(find-table from)))))
+
+(select-command (id name) :from flavors :where (> age 3)) 

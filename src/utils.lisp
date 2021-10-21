@@ -1,5 +1,9 @@
 (in-package #:ptql)
 
+(defmacro with-gensyms (syms &body body)
+  `(let (,@(mapcar (lambda (s) `(,s (gensym))) syms))
+     ,@body))
+
 (defun curry (fn &rest args)
   (lambda (&rest args2)
       (apply fn (append args args2))))
@@ -8,11 +12,14 @@
   (lambda (&rest args2)
       (apply fn (append args2 args)))) 
 
-(defun atom-test (fn)
-  (lambda (arg1 arg2)
-    (if (and (atom arg1) (atom arg2))
-        (funcall fn arg1 arg2)
-        (eql arg1 arg2))))
+(defun test-safe (fn test)
+  (lambda (&rest args)
+    (if (every test args)
+        (apply fn args)
+        nil)))
+
+(defun intern-upcase (name-or-symbol (pkg sb-int:sane-package))
+  (intern (string-upcase name-or-symbol) pkg))
 
 
 (defun unfoldn (lst n)
