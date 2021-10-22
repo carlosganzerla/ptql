@@ -1,4 +1,4 @@
-; (in-package #:ptql)
+(in-package #:ptql)
 
 (defclass table () 
   ((columns :accessor columns
