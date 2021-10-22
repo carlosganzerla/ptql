@@ -12,9 +12,9 @@
 (defmacro %row-scope (table row &body body)
   (let* ((columns (table-columns (find-table table)))
          (column-symbols (mapcar #'intern-symbol columns)))
-    `(let (,@(mapcar (lambda (symb) 
+    `(let (,@(mapcar (lambda (symb)
                        `(,symb (getf ,row ,(intern-symbol symb t))))
-                     (extract-set body 
+                     (extract-set body
                                   (lambda (c) (member c column-symbols)))))
        ,@body)))
 
@@ -31,19 +31,19 @@
 
 (defmacro %order-by (cols table)
   (if cols
-      `(multi-sort 
+      `(multi-sort
          (copy-list ,rows)
          ,@(mapcar (lambda (col)
                      (multiple-value-bind (fn col-name) (get-sort-fn col)
-                       `(lambda (row1 row2) 
-                          (,fn 
+                       `(lambda (row1 row2)
+                          (,fn
                             (getf row1 ,(intern-symbol col-name t))
                             (getf row2 ,(intern-symbol col-name t))))))
                    cols))
       rows))
 
 (defmacro select (symbols &key from (where t) order-by)
-  `(%select (%order-by ,order-by (%where ,from ,where)) 
+  `(%select (%order-by ,order-by (%where ,from ,where))
             ))
 
 ;;; NEW
@@ -55,37 +55,50 @@
 
 (defun import-table (path table)
   (multiple-value-bind (rows columns) (parse-table path)
-    (setf (gethash table *database*) 
+    (setf (gethash table *database*)
           (make-instance 'table :columns columns :rows rows))))
 
 
-(defmacro %where (expr columns)
-  (where ,table (lambda (row)
-                 ,(reduce (lambda (expr col)  
-                            (subst `(getf row ,col) col expr 
-                                   :test (test-safe #'string= #'symbolp)))
-                          columns
-                          :initial-value expr))))
+(defun expr-vars (expr)
+  (remove-duplicates (remove-if-not #'symbolp (flatten expr :key #'cdr))))
 
-(%where (and (> x 3) (= y 4)) (:x :y))
+(defmacro %where (table expr)
+  `(where ,table
+          (lambda (row)
+            ,(reduce (lambda (expr col)
+                       (subst `(if (member ,col row)
+                                   (getf row ,col)
+                                   (format-error "Column ~A doesn't exist"
+                                                 ,col))
+                              col expr :test (test-safe #'string= #'symbolp)))
+                     (mapcar (rcurry #'intern-upcase :keyword)
+                             (expr-vars expr))
+                     :initial-value expr))))
+
+(%where taibol (and (> x 3) (= y 4)))
 
 (defmacro %select (symbols table)
-  (with-gensyms (result)
-    (let ((,result ,table))
-      (select ,result 
+  (with-gensyms
+    (result)
+    `(let ((,result ,table))
+      (select ,result
               (etypecase ',symbols
-                (symbol (if (string= ',symbols '*) 
+                (symbol (if (string= ',symbols '*)
                             (columns ,result)
-                            (error "SYMBOLS must be * or a symbol list")))
-                (list (mapcar (rcurry #'intern-upcase :keyword) 
-                              ,symbols)))))))
+                            (format-error "Invalid symbol: ~A")))
+                (list (mapcar (rcurry #'intern-upcase :keyword)
+                              ',symbols)))))))
 
-(defun select-command (symbols &key from where)
-  (let ((table (find-table from)))
-    (%select symbols (%where where (columns table)))))
+(defmacro select-command (symbols &key from (where t))
+  `(%select ,symbols (%where (find-table ',from) ,where)))
 
-; (defmacro select-command (symbols &key from (where t))
-;   ((select (where ,from (%where ,where (columns ,(find-table from)))) 
-;            (select-columns ',symbols ,(find-table from)))))
+(rows (select-command *
+                :from table
+                :where (string> vegetable "corn")))
 
-(select-command (id name) :from flavors :where (> age 3)) 
+(%where taibol (and (> x 3) (= y 4)))
+
+(let ((x (gethash 'table *database*)))
+  (rows (%where x (or (string= vegetable "vegetable")
+                      (string= celery green))))
+  (rows (%select (:celery :pinto) x)))

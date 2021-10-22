@@ -1,20 +1,19 @@
 ; (in-package #:ptql)
 
-(defmacro defclassstd (name base slots)
-  `(defclass ,base
-     ,(mapcar (lambda (slot)
-                `(,slot :accessor ,slot
-                        :initarg ,(intern-upcase slot :keyword)
-                        :initform nil))
-              slots)))
-
-(defclassstd table () (rows))
-
-(defclassstd row () ())
+(defclass table () 
+  ((columns :accessor columns
+            :initarg :columns
+            :initform nil)
+   (rows :accessor rows
+         :initarg :rows
+         :initform nil)
+   (parent :accessor parent
+           :initarg :parent
+           :initform nil)))
 
 
 (defmacro deftableop (op-name bindings columns-form rows-form)
-  `(defmethod ,op-name ((,(car bindings) base-table) ,@(cdr bindings))
+  `(defmethod ,op-name ((,(car bindings) table) ,@(cdr bindings))
      (make-instance 'table
                     :columns ,columns-form
                     :rows ,rows-form
@@ -38,8 +37,3 @@
                          (or predicates
                              (lambda (r1 r2) 
                                (declare (ignore r1) (ignore r2)) nil)))))
-
-(defmacro deftable (table columns)
-  `(defclassstd ,table (base-table) ,columns))
-
-

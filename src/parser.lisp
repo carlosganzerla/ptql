@@ -19,7 +19,7 @@
 
 (defun %parse-columns (columns)
   (mapcar (lambda (col)
-            (and col (to-keyword col)))
+            (and col (intern-upcase col :keyword)))
           columns))
 
 (defun %parse-rows (columns rows)
