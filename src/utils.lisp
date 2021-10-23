@@ -30,3 +30,36 @@
 
 (defun intern-upcase (name-or-symbol &optional (pkg sb-int:sane-package))
   (intern (string-upcase name-or-symbol) pkg))
+
+(defun map-atoms (mapping tree)
+  (mapcar (lambda (e)
+            (if (atom e)
+                (funcall mapping e)
+                (map-atoms mapping e)))
+          tree))
+
+(defun unfoldn (lst n)
+  (reduce (lambda (acc _)
+            (declare (ignore _))
+            (mapcan #'identity acc))
+          (make-list n)
+          :initial-value lst))
+
+(defun group-list (lst predicate)
+  (labels ((rec (head acc lst)
+             (cond ((not lst) (nreverse (cons (nreverse head) acc)))
+                   ((and head (funcall predicate (car head) (car lst)))
+                    (rec (list (car lst)) (cons (nreverse head) acc) (cdr lst)))
+                   (t (rec (cons (car lst) head) acc (cdr lst))))))
+    (rec nil nil (sort (copy-list lst) predicate))))
+
+(defun multi-sort (lst predicate &rest predicates)
+  (labels ((rec (groups predicates)
+             (if predicates
+                 (mapcar (lambda (group)
+                           (rec (group-list group (car predicates))
+                                (cdr predicates)))
+                         groups)
+                 groups)))
+    (unfoldn (rec (group-list lst predicate) predicates)
+             (1+ (length predicates)))))
