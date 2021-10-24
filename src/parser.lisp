@@ -23,7 +23,7 @@
           columns))
 
 (defun %parse-rows (columns rows)
-  (mapcar (lambda (row) 
+  (mapcar (lambda (row)
             (mapcan (lambda (col row)
                       (and col (list col row)))
                     columns row))

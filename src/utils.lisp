@@ -9,11 +9,11 @@
 
 (defun curry (fn &rest args)
   (lambda (&rest args2)
-      (apply fn (append args args2))))
+    (apply fn (append args args2))))
 
 (defun rcurry (fn &rest args)
   (lambda (&rest args2)
-      (apply fn (append args2 args)))) 
+    (apply fn (append args2 args))))
 
 (defun test-safe (fn test)
   (lambda (&rest args)
@@ -66,3 +66,13 @@
                  groups)))
     (unfoldn (rec (group-list lst predicate) predicates)
              (1+ (length predicates)))))
+
+(defun print-line (msg &rest args)
+  (apply #'format
+         (append (list *query-io* (concatenate 'string "~&" msg "~%")) args)))
+
+(defmacro without-style-warnings (&body body)
+  `(unwind-protect
+     (progn (declaim (sb-ext:muffle-conditions style-warning))
+            ,@body)
+     (declaim (sb-ext:unmuffle-conditions style-warning))))
