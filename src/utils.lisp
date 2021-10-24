@@ -21,6 +21,9 @@
         (apply fn args)
         nil)))
 
+(defun variablep (obj)
+  (and (symbolp obj) (not (eql t obj)) (not (eql nil obj))))
+
 (defun flatten (lst &key (key #'identity))
   (mapcan (lambda (e)
             (if (listp e)

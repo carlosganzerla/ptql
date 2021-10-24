@@ -32,30 +32,22 @@
   (with-col-assertion (table col)
     (getf row col)))
 
-(defmethod get-sort-fn (table col)
-  (if (consp col)
-      (destructuring-bind (col clause) col
-        (with-col-assertion (table col) 
-          (values (if (string= clause :desc)
-                      #'string>
-                      #'string<) col)))
-      (with-col-assertion (table col) (values #'string< col))))
 
-(deftableop select (table &optional columns) columns
+(deftableop table-select (table &optional (columns (columns table))) columns
   (mapcar (lambda (row)
             (mapcan (lambda (col)
-                      (list col (get-cell table row col)))
-                    (or columns (columns table))))
+                      (list col (get-cell table col row)))
+                    columns))
           (rows table)))
 
-(deftableop where (table predicate) (columns table)
+(deftableop table-filter (table predicate) (columns table)
   (remove-if-not predicate (rows table)))
 
 
-(deftableop order-by (table &rest predicates) (columns table)
+(deftableop table-sort (table &rest predicates) (columns table)
   (apply #'multi-sort 
          (cons (rows table) 
-               (or (print predicates)
-                   (lambda (r1 r2) 
-                     (declare (ignore r1) (ignore r2)) nil)))))
+               (or predicates
+                   (list (lambda (r1 r2) 
+                           (declare (ignore r1) (ignore r2)) nil))))))
 
