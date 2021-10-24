@@ -4,89 +4,75 @@
   `(let (,@(mapcar (lambda (s) `(,s (gensym))) syms))
      ,@body))
 
-(defmacro defglobal (name table)
-  (with-gensyms (var)
-    `(let ((,var ,name))
-       (setf (symbol-value ,var) ,table)
-       ,var)))
+(defun format-error (message &rest args)
+  (error (apply #'format `(nil ,message ,@args))))
 
-(defun make-adjustable-string (s)
-  (make-array (length s)
-              :fill-pointer (length s)
-              :adjustable t
-              :initial-contents s
-              :element-type (array-element-type s)))
+(defun curry (fn &rest args)
+  (lambda (&rest args2)
+    (apply fn (append args args2))))
 
-(defun split-string (input tokens)
-  (with-input-from-string (str input)
-    (let ((splits nil)
-          (current (make-adjustable-string "")))
-      (do ((chr (read-char str nil :eof) (read-char str nil :eof)))
-          ((eql chr :eof) (nreverse (push current splits)))
-          (if (member chr tokens)
-              (progn
-                (push current splits)
-                (setf current (make-adjustable-string "")))
-              (vector-push-extend chr current))))))
+(defun rcurry (fn &rest args)
+  (lambda (&rest args2)
+    (apply fn (append args2 args))))
 
-(defun select-keys (prolst keys)
-  (let ((result nil))
-    (do* ((key (pop keys) (pop keys))
-          (val (getf prolst key) (getf prolst key)))
-      ((not key) (nreverse result))
-      (when val
-        (push key result)
-        (push val result)))))
+(defun test-safe (fn test)
+  (lambda (&rest args)
+    (if (every test args)
+        (apply fn args)
+        nil)))
+
+(defun variablep (obj)
+  (and (symbolp obj) (not (eql t obj)) (not (eql nil obj))))
+
+(defun flatten (lst &key (key #'identity))
+  (mapcan (lambda (e)
+            (if (listp e)
+                (flatten e :key key)
+                (list e)))
+          (funcall key lst)))
+
+(defun intern-upcase (name-or-symbol &optional (pkg sb-int:sane-package))
+  (intern (string-upcase name-or-symbol) pkg))
+
+(defun map-atoms (mapping tree)
+  (mapcar (lambda (e)
+            (if (atom e)
+                (funcall mapping e)
+                (map-atoms mapping e)))
+          tree))
 
 (defun unfoldn (lst n)
-  (reduce (lambda (acc e)
-            (if (and (consp e) (not (zerop n)))  
-                (append acc (apply #'list (unfoldn e (- n 1)))) 
-                (append acc (list e))))
-          lst
-          :initial-value nil))
+  (reduce (lambda (acc _)
+            (declare (ignore _))
+            (mapcan #'identity acc))
+          (make-list n)
+          :initial-value lst))
 
 (defun group-list (lst predicate)
   (labels ((rec (head acc lst)
-             (if lst
-                 (if (or (not head)
-                         (not (funcall predicate (car head) (car lst))))
-                     (rec (cons (car lst) head)
-                          acc
-                          (cdr lst))
-                     (rec (list (car lst))
-                          (cons (nreverse head) acc)
-                          (cdr lst)))
-                 (nreverse (cons (nreverse head) acc)))))
-    (rec nil nil (sort lst predicate))))
+             (cond ((not lst) (nreverse (cons (nreverse head) acc)))
+                   ((and head (funcall predicate (car head) (car lst)))
+                    (rec (list (car lst)) (cons (nreverse head) acc) (cdr lst)))
+                   (t (rec (cons (car lst) head) acc (cdr lst))))))
+    (rec nil nil (sort (copy-list lst) predicate))))
 
 (defun multi-sort (lst predicate &rest predicates)
   (labels ((rec (groups predicates)
-             (if (not predicates)
-                 groups
+             (if predicates
                  (mapcar (lambda (group)
                            (rec (group-list group (car predicates))
                                 (cdr predicates)))
-                         groups))))
+                         groups)
+                 groups)))
     (unfoldn (rec (group-list lst predicate) predicates)
              (1+ (length predicates)))))
 
-
-(defun extract-set (tree predicate &key (key #'identity) (test #'eql))
-  (let ((adjoin-fn (lambda (lst e)
-                     (adjoin e lst :key key :test test))))
-    (reduce (lambda (acc e)
-              (if (consp e)
-                  (reduce adjoin-fn 
-                          (extract-set e predicate :key key :test test)
-                          :initial-value acc)
-                  (or (and (funcall predicate e) (funcall adjoin-fn acc e))
-                      acc)))
-            tree
-            :initial-value nil)))
+(defun print-line (msg &rest args)
+  (apply #'format
+         (append (list *query-io* (concatenate 'string "~&" msg "~%")) args)))
 
 (defmacro without-style-warnings (&body body)
   `(unwind-protect
-     (progn (declaim (sb-ext:muffle-conditions style-warning)) 
+     (progn (declaim (sb-ext:muffle-conditions style-warning))
             ,@body)
      (declaim (sb-ext:unmuffle-conditions style-warning))))
