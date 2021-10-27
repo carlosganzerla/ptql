@@ -9,22 +9,24 @@
 (defun expr-vars (expr)
   (remove-duplicates (remove-if-not #'variablep (flatten expr :key #'cdr))))
 
-(defmacro %where (table expr)
-  `(table-filter
-     ,table
-     (lambda (row)
-       ,(cond ((consp expr)
-               (reduce (lambda (expr col)
-                         (subst `(get-cell ,table ,col row)
-                                col expr
-                                :test (test-safe #'string=
-                                                 #'variablep)))
-                       (mapcar (rcurry #'intern-upcase :keyword)
-                               (expr-vars expr))
-                       :initial-value expr))
-              ((variablep expr)
-               `(get-cell ,table ,(intern-upcase expr :keyword) row))
-              (t expr)))))
+(defun %where (table expr)
+  (table-filter 
+    table 
+    (compile (gensym) 
+             `(lambda (row)
+                ,(cond ((consp expr)
+                        (reduce (lambda (expr col)
+                                  (subst `(get-cell ,table ,col row)
+                                         col expr
+                                         :test 
+                                         (test-safe #'string=
+                                                    #'variablep)))
+                                (mapcar #'internkw
+                                        (expr-vars expr))
+                                :initial-value expr))
+                       ((variablep expr)
+                        `(get-cell ,table ,(internkw expr) row))
+                       (t expr))))))
 
 (defun %select (table symbols)
   (table-select table
@@ -32,16 +34,15 @@
                   (symbol (if (string= symbols '*)
                               (columns table)
                               (format-error "Invalid symbol: ~A" symbols)))
-                  (list (mapcar (rcurry #'intern-upcase :keyword)
-                                symbols)))))
+                  (list (mapcar #'internkw symbols)))))
 
 (defmethod get-sort-fn (table col)
   (if (consp col)
       (destructuring-bind (col clause) col
         (with-col-assertion (table col)
-          (values (if (string= clause :desc)
-                      #'string>
-                      #'string<) col)))
+                            (values (if (string= clause :desc)
+                                        #'string>
+                                        #'string<) col)))
       (with-col-assertion (table col) (values #'string< col))))
 
 
@@ -53,7 +54,7 @@
                        (funcall fn
                                 (get-cell table col row1)
                                 (get-cell table col row2)))))
-                 (map-atoms (rcurry #'intern-upcase :keyword) clauses))))
+                 (map-atoms #'internkw clauses))))
 
 
 (defun import-table (path table)
@@ -63,6 +64,5 @@
     table))
 
 
-(defmacro select (symbols &key from (where t) order-by)
-  `(%select (%order-by (%where (find-table ',from) ,where) ',order-by)
-            ',symbols))
+(defun select (symbols &key from (where t) order-by)
+  (%select (%order-by (%where (find-table from) where) order-by) symbols))
