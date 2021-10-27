@@ -2,4 +2,4 @@
 
 (defpackage #:ptql
   (:use #:cl)
-  (:export #:select))
+  (:export #:repl))
