@@ -11,15 +11,14 @@
 (defun %read-file (path)
   (with-open-file (str path :direction :input)
     (do ((line (read-line str nil :eof) (read-line str nil :eof))
-         (lines nil (cons line lines))
-         (len 0 (+ len 1)))
+         (lines nil (cons line lines)))
         ((eql line :eof)
          (subst nil "" (mapcar #'split-string (nreverse lines))
                 :test (test-safe #'string= #'stringp))))))
 
 (defun %parse-columns (columns)
   (mapcar (lambda (col)
-            (and col (intern-upcase col :keyword)))
+            (and col (internkw col)))
           columns))
 
 (defun %parse-rows (columns rows)

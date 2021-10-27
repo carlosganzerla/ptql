@@ -1,8 +1,21 @@
 (in-package #:ptql)
 
+(defmacro without-style-warnings (&body body)
+  `(unwind-protect
+     (progn (declaim (sb-ext:muffle-conditions style-warning))
+            ,@body)
+     (declaim (sb-ext:unmuffle-conditions style-warning))))
+
 (defmacro with-gensyms (syms &body body)
   `(let (,@(mapcar (lambda (s) `(,s (gensym))) syms))
      ,@body))
+
+(defmacro aif (test-form if-form &optional else-form)
+  `(let ((it ,test-form))
+    (if it ,if-form ,else-form)))
+
+(defmacro awhen (form &body body)
+  `(aif ,form ,@body))
 
 (defun format-error (message &rest args)
   (error (apply #'format `(nil ,message ,@args))))
@@ -31,8 +44,8 @@
                 (list e)))
           (funcall key lst)))
 
-(defun intern-upcase (name-or-symbol &optional (pkg sb-int:sane-package))
-  (intern (string-upcase name-or-symbol) pkg))
+(defun internkw (name-or-symbol)
+  (intern (string-upcase name-or-symbol) :keyword))
 
 (defun map-atoms (mapping tree)
   (mapcar (lambda (e)
@@ -70,9 +83,3 @@
 (defun print-line (msg &rest args)
   (apply #'format
          (append (list *query-io* (concatenate 'string "~&" msg "~%")) args)))
-
-(defmacro without-style-warnings (&body body)
-  `(unwind-protect
-     (progn (declaim (sb-ext:muffle-conditions style-warning))
-            ,@body)
-     (declaim (sb-ext:unmuffle-conditions style-warning))))
