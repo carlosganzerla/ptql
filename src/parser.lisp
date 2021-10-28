@@ -8,13 +8,17 @@
                    (cons str acc)))))
     (rec str nil)))
 
+(defun clean-lines (lines)
+  (subst nil "" (mapcar (lambda (line)
+                          (split-string (string-trim '(#\return) line))) 
+                        lines)
+         :test (test-safe #'string= #'stringp)))
+
 (defun %read-file (path)
   (with-open-file (str path :direction :input)
     (do ((line (read-line str nil :eof) (read-line str nil :eof))
          (lines nil (cons line lines)))
-        ((eql line :eof)
-         (subst nil "" (mapcar #'split-string (nreverse lines))
-                :test (test-safe #'string= #'stringp))))))
+        ((eql line :eof) (clean-lines (nreverse lines))))))
 
 (defun %parse-columns (columns)
   (mapcar (lambda (col)
