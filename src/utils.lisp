@@ -84,3 +84,13 @@
   (apply #'format
          (append (list t (concatenate 'string "~&" msg "~%")) args)))
 
+
+(defun mklist (&rest args)
+  (mapcan (lambda (arg)
+            (if (consp arg)
+                arg
+                (list arg)))
+          args))
+
+(defun parse-number (string)
+  (ignore-errors (parse-number:parse-number string)))
