@@ -7,7 +7,9 @@ supported). This project is a work in progress.
 
 ## Running the program
 
-To run the program, it's recommended to use the SBCL implementation.
+To run the program, use the SBCL implementation (There's a warning suppression
+macro which uses SBCL specific stuff, apart from that the program should run
+fine on any other implementation).
 
 ```shell
 sudo pacman -Sy sbcl
@@ -17,13 +19,16 @@ Also, you must install ASDF. I recommend installing quicklisp, which already
 installs ASDF. Their site contains precise
 [instructions](https://www.quicklisp.org/beta/).
 
-Clone the repo, then run Make on the repo main folder:
+Clone the repo, then run Make on the repo main folder.
+
+I also recommend installing `rlwrap`, because the default input for SBCL sucks.
+This optional, but the program is pretty lame without it.
 
 ```shell
 cd <your-folder>/ptql
 make
 cd bin
-./ptql
+rlwrap ptql
 ```
 
 ## Querying text files

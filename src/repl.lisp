@@ -9,10 +9,11 @@
 (defun read-command ()
   (let ((*read-eval* nil)
         (command (ignore-errors 
-                   (read-from-string (concatenate 'string
-                                                  "("
-                                                  (read-line *query-io*)
-                                                  ")")))))
+                   (read-from-string 
+                     (concatenate 'string
+                                  "("
+                                  (read-line)
+                                  ")")))))
     (if (and command (symbolp (car command))) 
         (values (internkw (car command)) (cdr command))
         (values nil nil))))

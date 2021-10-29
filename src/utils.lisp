@@ -82,4 +82,5 @@
 
 (defun print-line (msg &rest args)
   (apply #'format
-         (append (list *query-io* (concatenate 'string "~&" msg "~%")) args)))
+         (append (list t (concatenate 'string "~&" msg "~%")) args)))
+
