@@ -30,13 +30,13 @@
 
 (defun %select (table symbols)
   (table-select table
-                (etypecase symbols
+                (etypecase 
                   (symbol (if (string= symbols '*)
                               (columns table)
                               (format-error "Invalid symbol: ~A" symbols)))
                   (list (mapcar #'internkw symbols)))))
 
-(defmethod get-sort-fn (table col)
+(defun get-sort-fn (table col)
   (if (consp col)
       (destructuring-bind (col clause) col
         (with-col-assertion (table col)
@@ -57,8 +57,8 @@
                  (map-atoms #'internkw clauses))))
 
 
-(defun import-table (path table)
-  (multiple-value-bind (rows columns) (parse-table path)
+(defun import-table (path table &key (number-coercion t))
+  (multiple-value-bind (rows columns) (parse-table path number-coercion)
     (setf (gethash table *database*)
           (make-instance 'table :columns columns :rows rows))
     table))

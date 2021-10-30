@@ -23,28 +23,33 @@
         ((eql line :eof) (clean-lines (nreverse lines))))))
 
 (defun parse-columns (columns)
-  (mapcar (lambda (col)
-            (and col (internkw col)))
-          columns))
+  (remove-if-not #'identity
+                 (mapcar (lambda (col)
+                           (and col (internkw col)))
+                         columns)))
 
 (defun parse-rows (columns rows)
   (mapcar (lambda (row)
             (mapcan (lambda (col row)
-                      (and col (list col row)))
+                      (list col row))
                     columns row))
           rows))
 
 (defun coerce-to-number (columns rows)
-  (symbol-macrolet ((cell (get row col))) 
+  (symbol-macrolet ((cell (getf row col))) 
     (reduce (lambda (rows col)
-              (let ((rows-copy (copy-list rows)))
-               (dolist (row rows-copy 
-                            (if (every)))
-                (awhen (and cell (parse-number cell)) 
-                  (setf cell it))))))))
+              (let ((rows-copy (copy-tree rows)))
+                (dolist (row rows-copy rows-copy)
+                  (aif (and cell (parse-number cell))
+                    (setf cell it)
+                    (and cell (return-from nil rows))))))
+            columns
+            :initial-value rows)))
 
-(defun parse-table (path &key (number-coercion t))
+(defun parse-table (path &optional (number-coercion t))
   (let* ((cells (read-file path))
-         (columns (parse-columns (car cells)))
-         (rows (parse-rows columns (cdr cells))))
-    (values rows (remove-if-not #'identity columns))))
+         (cols (parse-columns (car cells)))
+         (rows (parse-rows cols (cdr cells))))
+    (if number-coercion
+        (values (coerce-to-number cols rows) cols)
+        (values rows cols))))
