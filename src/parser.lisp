@@ -9,11 +9,11 @@
     (rec str nil)))
 
 (defun clean-lines (lines)
-  (subst-if nil (lambda (str) 
-                  (and (stringp str) 
-                       (or (string= str "") (string-equal str "NULL")))) 
+  (subst-if nil (lambda (str)
+                  (and (stringp str)
+                       (or (string= str "") (string-equal str "NULL"))))
             (mapcar (lambda (line)
-                      (split-string (string-trim '(#\return #\ ) line))) 
+                      (split-string (string-trim '(#\return #\ ) line)))
                     lines)))
 
 (defun read-file (path)
@@ -36,7 +36,7 @@
           rows))
 
 (defun coerce-to-number (columns rows)
-  (symbol-macrolet ((cell (getf row col))) 
+  (symbol-macrolet ((cell (getf row col)))
     (reduce (lambda (rows col)
               (let ((rows-copy (copy-tree rows)))
                 (dolist (row rows-copy rows-copy)

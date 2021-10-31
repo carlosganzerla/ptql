@@ -10,15 +10,15 @@
   (remove-duplicates (remove-if-not #'variablep (flatten expr :key #'cdr))))
 
 (defun %where (table expr)
-  (table-filter 
-    table 
-    (compile (gensym) 
+  (table-filter
+    table
+    (compile (gensym)
              `(lambda (row)
                 ,(cond ((consp expr)
                         (reduce (lambda (expr col)
                                   (subst `(get-cell ,table ,col row)
                                          col expr
-                                         :test 
+                                         :test
                                          (test-safe #'string=
                                                     #'variablep)))
                                 (mapcar #'internkw
@@ -30,7 +30,7 @@
 
 (defun %select (table symbols)
   (table-select table
-                (etypecase 
+                (etypecase symbols
                   (symbol (if (string= symbols '*)
                               (columns table)
                               (format-error "Invalid symbol: ~A" symbols)))

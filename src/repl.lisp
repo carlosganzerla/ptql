@@ -8,9 +8,9 @@
 
 (defun read-command ()
   (let ((*read-eval* nil)
-        (command (ignore-errors 
+        (command (ignore-errors
                    (read-from-string (concat "(" (read-line) ")")))))
-    (if (and command (symbolp (car command))) 
+    (if (and command (symbolp (car command)))
         (values (internkw (car command)) (cdr command))
         (values nil nil))))
 
@@ -22,10 +22,10 @@
     (values nil nil)))
 
 (defmacro command-interpreter ((cmd-key cmd-args) values-form &body forms)
-  `(multiple-value-bind (,cmd-key ,cmd-args) ,values-form 
+  `(multiple-value-bind (,cmd-key ,cmd-args) ,values-form
      (handler-case
        (case ,cmd-key
-         ,@(mapcar (lambda (form) 
+         ,@(mapcar (lambda (form)
                      (let ((key (internkw (car form))))
                        `(,key
                           (let ((result (awhen (findkw-function ,key)

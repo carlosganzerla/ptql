@@ -1,5 +1,9 @@
 (in-package #:ptql)
 
+(set-dispatch-macro-character #\# #\? (lambda (str c1 c2)
+                                        (lambda (&rest args)
+                                          (read str t nil t))))
+
 (defmacro without-style-warnings (&body body)
   `(unwind-protect
      (progn (declaim (sb-ext:muffle-conditions style-warning))
@@ -100,5 +104,3 @@
 
 (defun parse-number (string)
   (ignore-errors (parse-number:parse-number string)))
-
-
