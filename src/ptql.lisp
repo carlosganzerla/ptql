@@ -73,6 +73,9 @@
 
 
 (defun import-table (path table &key (number-coercion t))
+  "Parses a file from PATH and saves it on the *DATABASE with the symbol named
+   TABLE. Every column which all rows are a number will be parsed automatically
+   to numeric values, unless NUMBER-COERCION is set to NIL"
   (multiple-value-bind (rows columns) (parse-table path number-coercion)
     (setf (gethash table *database*)
           (make-instance 'table :columns columns :rows rows))
@@ -80,6 +83,12 @@
 
 
 (defun select (symbols &key from (where t) order-by limit)
+  "Queries the table symbol on *DATABASE* specified on FROM, selecting only the
+   specified SYMBOLS (columns). If * is set as SYMBOLS, all columns are
+   selected. A predicate may be supplied by the keyword parameter WHERE. The
+   columns must be referred as symbols. ORDER-BY defines the sorting clause.
+   LIMIT will dictate the number of rows returned. If NIL, all rows will be
+   returned."
   (funcall (if limit (rcurry #'table-limit limit) #'identity)
            (%select (%order-by (%where (find-table from) where)
                                order-by)

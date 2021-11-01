@@ -4,7 +4,9 @@
   (print-line "Commands must be on the following form:")
   (print-line "import-table #p\"<csv-path>\" <table-name>")
   (print-line "select ([column]* | *) :from <table-name>")
-  (print-line "[:where <condition>] [:order-by ([column | (column :desc)]*)]"))
+  (print-line "[:where <condition>] [:order-by ([column | (column :desc)]*)]")
+  (print-line "[:limit <count>] "))
+
 
 (defun read-command ()
   (let ((*read-eval* nil)
@@ -43,8 +45,8 @@
   (do () (nil)
       (print-line "Enter command:")
       (command-interpreter (key args) (read-command)
-        (help (help))
-        (import-table (print-line "Table ~A imported successfully" result))
-        (select (table-print result))
-        (q (return-from nil))))
+                           (help (help))
+                           (import-table (print-line "Table ~A imported successfully" result))
+                           (select (table-print result))
+                           (q (return-from nil))))
   (print-line "Goodbye"))
