@@ -22,7 +22,7 @@ installs ASDF. Their site contains precise
 Clone the repo, then run Make on the repo main folder.
 
 I also recommend installing `rlwrap`, because the default input for SBCL sucks.
-This optional, but the program is pretty lame without it.
+This is optional, but the program is pretty lame without it.
 
 ```shell
 cd <your-folder>/ptql
