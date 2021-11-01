@@ -44,7 +44,10 @@
   (remove-if-not predicate (rows table)))
 
 (deftableop table-limit (table count) (columns table)
-  (subseq (rows table) 0 count))
+  (let ((table-rows (rows table)))
+   (if (< count (length table-rows))
+     (subseq table-rows 0 count)
+     table-rows)))
 
 (deftableop table-sort (table &rest predicates) (columns table)
   (apply #'multi-sort
