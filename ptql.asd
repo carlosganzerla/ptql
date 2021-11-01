@@ -7,6 +7,7 @@
   :version "0.0.1"
   :serial t
   :build-operation "program-op"
+  :depends-on (#:parse-number)
   :build-pathname "bin/ptql"
   :entry-point "ptql:repl"
   :components ((:file "src/package")

@@ -17,8 +17,13 @@
 (defmacro awhen (form &body body)
   `(aif ,form ,@body))
 
+(defun to-string (obj)
+  (cond ((stringp obj) obj)
+        ((symbolp obj) (symbol-name obj))
+        (t (write-to-string obj))))
+
 (defun format-error (message &rest args)
-  (error (apply #'format `(nil ,message ,@args))))
+  (error (apply #'format nil message args)))
 
 (defun curry (fn &rest args)
   (lambda (&rest args2)
@@ -54,6 +59,9 @@
                 (map-atoms mapping e)))
           tree))
 
+(defun concat (str &rest args)
+  (apply #'concatenate 'string str args))
+
 (defun unfoldn (lst n)
   (reduce (lambda (acc _)
             (declare (ignore _))
@@ -81,6 +89,14 @@
              (1+ (length predicates)))))
 
 (defun print-line (msg &rest args)
-  (apply #'format
-         (append (list t (concatenate 'string "~&" msg "~%")) args)))
+  (apply #'format t (concat "~&" msg "~%") args))
 
+(defun mklist (&rest args)
+  (mapcan (lambda (arg)
+            (if (consp arg)
+                arg
+                (list arg)))
+          args))
+
+(defun parse-number (string)
+  (ignore-errors (parse-number:parse-number string)))

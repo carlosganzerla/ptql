@@ -10,15 +10,15 @@
   (remove-duplicates (remove-if-not #'variablep (flatten expr :key #'cdr))))
 
 (defun %where (table expr)
-  (table-filter 
-    table 
-    (compile (gensym) 
+  (table-filter
+    table
+    (compile (gensym)
              `(lambda (row)
                 ,(cond ((consp expr)
                         (reduce (lambda (expr col)
                                   (subst `(get-cell ,table ,col row)
                                          col expr
-                                         :test 
+                                         :test
                                          (test-safe #'string=
                                                     #'variablep)))
                                 (mapcar #'internkw
@@ -36,14 +36,29 @@
                               (format-error "Invalid symbol: ~A" symbols)))
                   (list (mapcar #'internkw symbols)))))
 
-(defmethod get-sort-fn (table col)
+(defun create-sort-fn (number-fn string-fn)
+  (lambda (fst snd)
+    (cond ((and fst (not snd)) t)
+          ((and (not fst) snd) nil)
+          ((and (numberp fst) (numberp snd)) (funcall number-fn fst snd))
+          ((and (stringp fst) (stringp snd)) (funcall string-fn fst snd))
+          (t nil))))
+
+
+(defun .> (fst snd)
+  (funcall (create-sort-fn #'> #'string>) fst snd))
+
+(defun .< (fst snd)
+  (funcall (create-sort-fn #'< #'string<) fst snd))
+
+(defun get-sort-fn (table col)
   (if (consp col)
       (destructuring-bind (col clause) col
         (with-col-assertion (table col)
                             (values (if (string= clause :desc)
-                                        #'string>
-                                        #'string<) col)))
-      (with-col-assertion (table col) (values #'string< col))))
+                                        #'.>
+                                        #'.<) col)))
+      (with-col-assertion (table col) (values #'.< col))))
 
 
 (defun %order-by (table clauses)
@@ -57,8 +72,8 @@
                  (map-atoms #'internkw clauses))))
 
 
-(defun import-table (path table)
-  (multiple-value-bind (rows columns) (parse-table path)
+(defun import-table (path table &key (number-coercion t))
+  (multiple-value-bind (rows columns) (parse-table path number-coercion)
     (setf (gethash table *database*)
           (make-instance 'table :columns columns :rows rows))
     table))

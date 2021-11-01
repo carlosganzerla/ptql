@@ -45,24 +45,22 @@
 
 
 (deftableop table-sort (table &rest predicates) (columns table)
-  (apply #'multi-sort
+  (apply #'multi-sort 
          (cons (rows table)
-               (or predicates
+               (or predicates 
                    (list (lambda (r1 r2)
                            (declare (ignore r1) (ignore r2)) nil))))))
 
 (defmethod table-print ((table table) &optional (cell-length 20))
   (declare (type integer cell-length))
   (flet ((print-row (row)
-           (print-line (concatenate 'string "~{~"
-                                    (write-to-string (+ 4 cell-length)) "A~}")
+           (print-line (concat "~{~" (write-to-string (+ 4 cell-length)) "A~}")
                        (mapcar (lambda (cell)
                                  (if (> (length cell) cell-length)
-                                     (concatenate
-                                       'string
+                                     (concat
                                        (subseq cell 0 (- cell-length 3)) "...")
                                      cell))
-                               row))))
+                               (mapcar #'to-string row)))))
     (print-row (mapcar #'symbol-name (columns table)))
     (mapcar #'print-row (mapcar (curry #'remove-if #'variablep) (rows table)))
     nil))
