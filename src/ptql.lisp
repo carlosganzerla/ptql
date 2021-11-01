@@ -36,14 +36,29 @@
                               (format-error "Invalid symbol: ~A" symbols)))
                   (list (mapcar #'internkw symbols)))))
 
+(defun create-sort-fn (number-fn string-fn)
+  (lambda (fst snd)
+    (cond ((and fst (not snd)) t)
+          ((and (not fst) snd) nil)
+          ((and (numberp fst) (numberp snd)) (funcall number-fn fst snd))
+          ((and (stringp fst) (stringp snd)) (funcall string-fn fst snd))
+          (t nil))))
+
+
+(defun .> (fst snd)
+  (funcall (create-sort-fn #'> #'string>) fst snd))
+
+(defun .< (fst snd)
+  (funcall (create-sort-fn #'< #'string<) fst snd))
+
 (defun get-sort-fn (table col)
   (if (consp col)
       (destructuring-bind (col clause) col
         (with-col-assertion (table col)
                             (values (if (string= clause :desc)
-                                        #'string>
-                                        #'string<) col)))
-      (with-col-assertion (table col) (values #'string< col))))
+                                        #'.>
+                                        #'.<) col)))
+      (with-col-assertion (table col) (values #'.< col))))
 
 
 (defun %order-by (table clauses)
