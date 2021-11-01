@@ -43,11 +43,13 @@
 (deftableop table-filter (table predicate) (columns table)
   (remove-if-not predicate (rows table)))
 
+(deftableop table-limit (table count) (columns table)
+  (subseq (rows table) 0 count))
 
 (deftableop table-sort (table &rest predicates) (columns table)
-  (apply #'multi-sort 
+  (apply #'multi-sort
          (cons (rows table)
-               (or predicates 
+               (or predicates
                    (list (lambda (r1 r2)
                            (declare (ignore r1) (ignore r2)) nil))))))
 

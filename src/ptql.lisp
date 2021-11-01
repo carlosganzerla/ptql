@@ -79,5 +79,8 @@
     table))
 
 
-(defun select (symbols &key from (where t) order-by)
-  (%select (%order-by (%where (find-table from) where) order-by) symbols))
+(defun select (symbols &key from (where t) order-by limit)
+  (funcall (if limit (rcurry #'table-limit limit) #'identity)
+           (%select (%order-by (%where (find-table from) where)
+                               order-by)
+                    symbols)))

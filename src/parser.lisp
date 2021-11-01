@@ -9,7 +9,7 @@
     (rec str nil)))
 
 (defun clean-lines (lines)
-  (subst-if nil (lambda (str)
+  (nsubst-if nil (lambda (str)
                   (and (stringp str)
                        (or (string= str "") (string-equal str "NULL"))))
             (mapcar (lambda (line)
