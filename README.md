@@ -58,17 +58,17 @@ select * :from table
 
 The results will be printed on the terminal.
 
-Current, only `where` and `order-by` are supported:
+Current, only `where`, `order-by` and `limit` are supported:
 
 ```lisp
-select (id field) :from table :where (> (length field) 5) :order-by (extra)
+select (id field) :from table :where (> (length field) 5) :order-by (extra) :limit 10
 ```
 
 You can use any valid Lisp expression on the `where` clause. On the `order-by`,
-use a list with the column names. You may order by descendings well:
+use a list with the column names. You may order by descending as well:
 
 ```lisp
-select (field) :from table :order-by (name (extra :desc))
+select (field) :from table :order-by (name (extra desc))
 ```
 
 Column names may also have white space. If it is so, refer to them by enclosing
