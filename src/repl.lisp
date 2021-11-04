@@ -46,7 +46,9 @@
       (print-line "Enter command:")
       (command-interpreter (key args) (read-command)
                            (help (help))
-                           (import-table (print-line "Table ~A imported successfully" result))
+                           (import-table 
+                             (print-line "Table ~A imported successfully"
+                                         result))
                            (select (table-print result))
                            (q (return-from nil))))
   (print-line "Goodbye"))

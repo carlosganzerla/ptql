@@ -89,14 +89,7 @@
              (1+ (length predicates)))))
 
 (defun print-line (msg &rest args)
-  (apply #'format t (concat "~&" msg "~%") args))
-
-(defun mklist (&rest args)
-  (mapcan (lambda (arg)
-            (if (consp arg)
-                arg
-                (list arg)))
-          args))
+  (apply #'format *standard-input* (concat "~&" msg "~%") args))
 
 (defun parse-number (string)
   (ignore-errors (parse-number:parse-number string)))

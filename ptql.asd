@@ -24,5 +24,6 @@
   :pathname "t/"
   :components ((:file "package")
                (:file "test")
-               (:file "test2"))
+               (:file "parser-tests")
+               (:file "table-tests"))
   :perform (test-op (o c) (symbol-call :ptql/test :run-tests)))

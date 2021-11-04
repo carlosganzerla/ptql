@@ -1,6 +1,6 @@
 (in-package #:ptql)
 
-(defun split-string (str &optional (separator #\,))
+(defun split-string (str &optional (separator #\ ))
   (labels ((rec (str acc)
              (let ((n (position separator str :from-end t :test #'char=)))
                (if n
@@ -8,19 +8,20 @@
                    (cons str acc)))))
     (rec str nil)))
 
-(defun clean-lines (lines)
+(defun read-cells (lines separator)
   (nsubst-if nil (lambda (str)
                   (and (stringp str)
                        (or (string= str "") (string-equal str "NULL"))))
             (mapcar (lambda (line)
-                      (split-string (string-trim '(#\return #\ ) line)))
+                      (split-string (string-trim '(#\return #\ ) line) 
+                                    separator))
                     lines)))
 
-(defun read-file (path)
+(defun read-file (path separator)
   (with-open-file (str path :direction :input)
     (do ((line (read-line str nil :eof) (read-line str nil :eof))
          (lines nil (cons line lines)))
-        ((eql line :eof) (clean-lines (nreverse lines))))))
+        ((eql line :eof) (read-cells (nreverse lines) separator)))))
 
 (defun parse-columns (columns)
   (remove-if-not #'identity
@@ -46,8 +47,8 @@
             columns
             :initial-value rows)))
 
-(defun parse-table (path &optional (number-coercion t))
-  (let* ((cells (read-file path))
+(defun parse-file (path &optional (separator #\,) (number-coercion t))
+  (let* ((cells (read-file path separator))
          (cols (parse-columns (car cells)))
          (rows (parse-rows cols (cdr cells))))
     (if number-coercion
