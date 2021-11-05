@@ -15,13 +15,14 @@ fine on any other implementation). I`ll try to make it portable some other time.
 sudo pacman -Sy sbcl
 ```
 
-Also, you must install ASDF. I recommend installing quicklisp, which already
-installs ASDF. Their site contains precise
+Also, you must install ASDF. It may come installed with your implementation.
+
+I recommend installing quicklisp. Their site contains precise
 [instructions](https://www.quicklisp.org/beta/).
 
 Clone the repo, then run Make on the repo main folder.
 
-I also recommend installing `rlwrap`, because the default input for SBCL sucks.
+I also recommend installing `rlwrap`, because the default input sucks.
 This is optional, but the program is pretty lame without it.
 
 ```shell
@@ -42,10 +43,10 @@ id,field,extra
 3,doe,5
 ```
 
-Load text files using `parse-table`:
+Import text files using `import-table`:
 
 ```lisp
-parse-table #p"/home/user/file.csv" table
+import-table #p"/home/user/file.csv" table
 ```
 
 The file header column names will be used to refer to the columns.
