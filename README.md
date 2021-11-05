@@ -9,7 +9,7 @@ supported). This project is a work in progress.
 
 To run the program, use the SBCL implementation (There's a warning suppression
 macro which uses SBCL specific stuff, apart from that the program should run
-fine on any other implementation).
+fine on any other implementation). I`ll try to make it portable some other time.
 
 ```shell
 sudo pacman -Sy sbcl
